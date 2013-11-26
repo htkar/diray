@@ -11,7 +11,7 @@ var express = require("express")
   , http = require("http")
   , path = require("path")
   , MongoStore = require("connect-mongo")
-  , settings = require("./settings")
+  , settings = require("./Settings")
   ;
 
 var app = express();
