@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Diary</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" href="_css/Diary.css">
+        <script src="_js/html5shiv.js"></script>
+        <script src="_js/jquery-1.7.2.js"></script>
+        <!--<script src="http://localhost:81/jsLibrary/json2.js"></script>-->
+        <script src="_js/jquery.mousewheel.js"></script>
+        <script src="_js/utils.js"></script>
+        <script src="_js/index.js"></script>
+    </head>
+    <body>
+        <!--#include virtual="./index.ejs" -->
+<header>
+    <span class="des">看过的一些东西时常都会忘记，想找一种方法记录下来，又方便以后查阅，取代纸质记录</span>
+    <a id="new" class="signin" href="">New</a>
+    <!-- <a class="signup" href="">注册</a> -->
+    <!-- <button id="load">load</button> -->
+</header>
+<div id="content">
+    <div id="timeLine">
+        <div id="line" class="transition">
+        
+            <hr width="100%" /><!-- over 100% width -->
+            <ul class="allItem">
+                
+            </ul>
+        </div>
+            
+        <div id="overView">
+            <hr id="overViewLine" width="100%" />
+            <ul class="allItem"></ul>
+            <div id="currentPosition"></div>
+        </div>
+    </div>
+</div>
+<footer>
+    <hr width=100% />
+    <span>by<a class="author" href="http://www.weibo.com/wcrd">恋着歌</a></span>
+</footer>
+    </body>
+</html>

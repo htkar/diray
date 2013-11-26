@@ -1,0 +1,37 @@
+form {
+	width: 600px;
+	margin: 50px auto 0;
+	/*border: 1px solid #aaa;
+	border-radius: 3px;
+	padding: 50px;*/
+	text-align: center;
+	white-space: none;
+}
+.input_title{
+	width: 400px;
+	height: 40px;
+	line-height: 35px;
+	font-size: 22px;
+}
+.input_article{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	width: 400px;
+	height: 200px;
+}
+.input_rel{
+	a
+}
+.input_time{
+	a
+}
+.btn_submit{
+	text-align: center;
+    color: #fff;
+    background-color: #1570A6;
+    width: 150px;
+    height: 35px;
+    margin-top: 10px;
+    border: none;
+    font-size: 22px;
+}

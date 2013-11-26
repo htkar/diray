@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Diary</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" href="_css/reset.css">
+        <link rel="stylesheet" type="text/css" href="_css/Diary.css">
+        <link rel="stylesheet" type="text/css" href="_css/admin.css">
+        <script src="_js/jquery-1.7.2.js"></script>
+        <script src="_js/jquery.mousewheel.js"></script>
+        <script src="_js/utils.js"></script>
+    </head>
+    <body>
+<header>
+    <span class="des">看过的一些东西时常都会忘记，想找一种方法记录下来，又方便以后查阅，取代纸质记录</span>
+    <a class="signin" href="">登录</a>
+    <a class="signup" href="">注册</a>
+    <!-- <button id="load">load</button> -->
+</header>
+<div id="content">
+    <form action="/post" method="post">
+        <input type="text" name="title" id="title" class="input_title" placeholder="title" /><br />
+        <textarea name="article" id="article" class="input_article" placeholder="article" ></textarea><br />
+        <input type="text" name="rel" id="rel" class="input_rel" placeholder="url" />
+        <input type="text" name="time" id="time" class="input_time" placeholder="time:yyyy/MM/dd HH:mm:ss" /><br />
+        <input type="submit" id="btn_submit" class="btn_submit" value="POST" />
+
+    </form>
+</div>
+<footer>
+    <hr width=100% />
+    <span>by<a class="author" href="http://www.weibo.com/wcrd">恋着歌</a></span>
+</footer>
+
+    <script>
+        $("#btn_submit").click(function(event){
+            event.preventDefault();
+            var form = document.forms[0]
+            var url = form.action;
+            var title = form.title.value;
+            var article = form.article.value;
+            var rel = form.rel.value;
+            var time = form.time.value;
+            var param = {};
+            param.title = title || "";
+            param.article = article || "";
+            param.rel = rel || "";
+            param.time = time || "";
+            console.log(url);
+            // var formData = new FormData(document.forms[o]);
+            console.dir(param);
+            $.post(url, param, function(data) {
+                if (data.success) {
+                    alert("success");
+                } else {
+                    alert("false");
+                }
+            }, "json");
+            return false;
+        });
+    </script>
+    </body>
+
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Diary</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" href="_css/Diary.css">
+        <script src="_js/jquery-1.7.2.js"></script>
+        <!--<script src="http://localhost:81/jsLibrary/json2.js"></script>-->
+        <script src="_js/jquery.mousewheel.js"></script>
+        <script src="_js/utils.js"></script>
+        <script>
+            var maxWidth = 0;
+            window.onload= handleLoad;
+            function handleLoad() {
+                $("#line").mousewheel(handleMousewheel);
+                $.post("_json/diary.json",{},handleInitJson,"json");
+            }
+
+            function handleMousewheel(e,delta) {
+            
+                e.stopPropagation();
+                e.preventDefault();
+                
+                var speed=300;
+                var marginLeft_old = $("#line").offset().left;
+                var marginLeft = marginLeft_old + delta*speed;
+                if (marginLeft>=0 && delta >=0) {   //stop when left
+                    marginLeft = 0 ;
+                } else if (Math.abs(marginLeft) + $("#overViewLine").width() > maxWidth && delta < 0) {//stop when right
+                    marginLeft = -(maxWidth - $("#overViewLine").width())
+                }
+                //console.log("marginLeft_old:{marginLeft_old}".subtitle({marginLeft_old:marginLeft_old}))
+                $("#line").css({"margin-left": marginLeft + "px"});
+
+                //compute currentArticle
+                var currentArticle = 0;
+                if (Math.abs(marginLeft) % 310) {
+                    currentArticle = Math.ceil(Math.abs(marginLeft) / 310) + 1;
+                } else {
+                    currentArticle = Math.abs(marginLeft) / 310 + 1;
+                }
+                var time = $("#article" + currentArticle + " time").attr("datetime").date();
+                console.log("#article" + currentArticle + " time");
+                computePosition(time);
+            }
+            function handleInitJson(data) {
+                //console.log("handleInitJson start");
+                var resultArray = data.articles;
+                var years = data.years;
+                resultArray.forEach(function (item,index){
+                    var left=(310)*index + 10;
+                    li += listTemp.subtitle({id: index + 1, left:left,position:index + 1,article:item.article,rel:item.rel,time:item.time});
+                });
+                years.forEach(function(item, i) {
+                    yearsLi += yearsListTemp.subtitle({left: 300 * i, year: item});
+                });
+                $("#line ul").append(li);
+                $("#overView ul").append(yearsLi);
+
+                if (resultArray.length > 0) {
+                    var time = resultArray[0].time.date();
+                    computePosition(time);
+                    //compute maxWidth
+                    maxWidth = resultArray.length * 310;
+                }
+                
+            }
+
+            //locate currentPosition
+            function computePosition(time) {
+                if (!time instanceof Date) {
+                    return;
+                }
+                var startYear = 2009,
+                endYear = 2013,
+                currentPositionLeft = 0,
+                thisYear = time.getFullYear();
+                
+                currentPositionLeft = (thisYear - startYear)* 300;
+                currentPositionLeft += (time.getMonth() + 1) / 12 * 300;
+                if (currentPositionLeft + $("#currentPosition").width() > $("#overViewLine").width()) {
+                    currentPositionLeft = $("#overViewLine").width() - $("#currentPosition").width();
+                }
+                $("#year" + thisYear).addClass("");
+                $("#currentPosition").css({left: currentPositionLeft + 'px'});
+            }
+            
+            var listTemp = '<li class="item" style="left: {left}px;">' + 
+                        '<div class="position"><a href="">{position}</a></div>' +
+                        '<div class="bg">' +
+                            '<section id="article{id}">' +
+                                '<article>{article}</article>' +
+                                '<figcaption>{rel}</figcaption>' +
+                                '<time datetime="{time}">{time}</time></section></div></li>';
+            var yearsListTemp = '<li class="item" style="left: {left}px;"><div id="year{year}" class="position"><div class="flicker"></div><a href="">{year}</a></div></li>';
+            var li = "";
+            var yearsLi = "";
+        </script>
+    </head>
+    <body>
+        <%- body %>
+    </body>
+</html>

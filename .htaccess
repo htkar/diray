@@ -1,0 +1,5 @@
+<Files xmlrpc.php>
+ 
+SecFilterInheritance Off
+ 
+</Files>
