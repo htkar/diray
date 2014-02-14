@@ -41,7 +41,7 @@ if ("development" == app.get("env")) {
 
 app.get("/", routes.index);
 app.get("/admin", routes.admin);
-app.post("/_json/:apiName", function (req,res) {
+app.get("/_json/:apiName", function (req,res) {
     _json[req.params.apiName](req, res);
 });
 app.post("/post", _json.post);

@@ -6,10 +6,12 @@
         <link rel="stylesheet" type="text/css" href="_css/Diary.css">
         <script src="_js/html5shiv.js"></script>
         <script src="_js/jquery-1.7.2.js"></script>
+        <script src="_js/underscore-1.3.1.js"></script>
+        <script src="_js/backbone.js"></script>
         <!--<script src="http://localhost:81/jsLibrary/json2.js"></script>-->
         <script src="_js/jquery.mousewheel.js"></script>
         <script src="_js/utils.js"></script>
-        <script src="_js/index.js"></script>
+        <script src="_js/index_backbone.js"></script>
     </head>
     <body>
         <!--#include virtual="./index.ejs" -->
@@ -40,5 +42,17 @@
     <hr class="line" width=100% />
     <span>by<a class="author" href="http://www.weibo.com/wcrd">恋着歌</a></span>
 </footer>
+<script id="listTemp" type="text/x-template">
+<li class="item" style="left: {left}px;">
+    <div class="position"><a href="">{position}</a></div>
+    <div class="bg">
+        <section id="article{id}">
+            <article>{article}</article>
+            <figcaption class="categories">{categories}</figcaption>
+            <time datetime="{time}">{time}</time>
+        </section>
+    </div>
+</li>
+</script>
     </body>
 </html>
