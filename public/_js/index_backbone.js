@@ -20,17 +20,18 @@ var ItemList = Backbone.Collection.extend({
 var AppView = Backbone.View.extend({
     initialize: function() {
         var that = this;
+        $.get("_json/diary",{},this.handleInitJson,"json");
 
-        this.collection = new ItemList();
-        this.collection.model = ItemModel;
-        this.collection.fetch({
-            error: function() {
+        // this.collection = new ItemList();
+        // this.collection.model = ItemModel;
+        // this.collection.fetch({
+        //     error: function() {
 
-            },
-            success: function() {
-                that.render();
-            }
-        });
+        //     },
+        //     success: function() {
+        //         that.render();
+        //     }
+        // });
     },
     event: {
         "mousewheel #line": "handleMousewheel",
@@ -46,6 +47,43 @@ var AppView = Backbone.View.extend({
         years = data.years;
         end = data.end;
         $.each(resultArray, function (index, item){
+            lastLeft = (310)*index + 10;
+            lastNumber = index + 1;
+            var categories = item.categories || [];
+            var categoriesHtml = "";
+            $.each(categories, function (i, items) {
+                categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
+            });
+            li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
+        });
+        $.each(years, function(i, item) {
+            var position = yearPositions[item] = 300*i;
+            yearsLi += yearsListTemp.subtitle({left: position, year: item});
+        });
+
+        $("#overView ul").append(yearsLi);
+        if (resultArray.length > 0) {
+            var time = resultArray[0].time.date();
+            computePosition(time);
+            //compute maxWidth
+            maxWidth = resultArray.length * 310;
+            //timeLineScroll();
+        }
+        
+        $("#line ul").width(maxWidth).append(li);
+        decideEnd();
+    },
+    handleInitJson: function (data) {
+        //console.log("handleInitJson start");
+        var resultArray = data.articles;
+        var li = "";
+        years = data.years;
+        end = data.end;
+        var model = new ItemModel();
+        model.parse(resultArray);
+        $.each(resultArray, function (index, item){
+            var model = new ItemModel();
+            model.parse(item);
             lastLeft = (310)*index + 10;
             lastNumber = index + 1;
             var categories = item.categories || [];
