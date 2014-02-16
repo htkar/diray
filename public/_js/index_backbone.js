@@ -8,30 +8,31 @@ var ItemModel = Backbone.Model.extend({
 });
 
 var ItemView = Backbone.View.extend({
-    termplate: $("#listTemp").html()
+    termplate: _.template($("#listTemp").html()),
+    render: function() {
+        this.$el.html(this.template(this.model.toJSON()));
+        return this;
+    }
+
 
 });
 var ItemList = Backbone.Collection.extend({
-    url: "_json/diary",
+    url: "_json/getPage",
     modle: ItemModel,
-
 });
 
 var AppView = Backbone.View.extend({
     initialize: function() {
         var that = this;
-        $.get("_json/diary",{},this.handleInitJson,"json");
+        // $.get("_json/diary",{},this.handleInitJson,"json");
 
-        // this.collection = new ItemList();
-        // this.collection.model = ItemModel;
-        // this.collection.fetch({
-        //     error: function() {
-
-        //     },
-        //     success: function() {
-        //         that.render();
-        //     }
-        // });
+        this.collection = new ItemList();
+        
+        this.listenTo(this.collection, 'add', this.addOne);
+        this.listenTo(this.collection, 'reset', this.addAll);
+        this.listenTo(this.collection, 'all', this.render);
+        this.collection.model = ItemModel;
+        this.collection.fetch({data: {page: 1}});
     },
     event: {
         "mousewheel #line": "handleMousewheel",
@@ -46,7 +47,7 @@ var AppView = Backbone.View.extend({
         var li = "";
         years = data.years;
         end = data.end;
-        $.each(resultArray, function (index, item){
+        $.each(data, function (index, item){
             lastLeft = (310)*index + 10;
             lastNumber = index + 1;
             var categories = item.categories || [];

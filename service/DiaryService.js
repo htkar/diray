@@ -22,5 +22,18 @@ function save(data, callback) {
     }
     diaryDao.save(data, callback);
 }
+function getPage(param, callback) {
+    
+    diaryDao.get(param, function (err, docs, end){
+        if (!err) {
+            callback(err, docs);
+            
+        } else {
+            callback(err, docs);
+        }
+    });
+}
+
 module.exports.get = get;
 module.exports.save = save;
+module.exports.getPage = getPage;

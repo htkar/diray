@@ -27,7 +27,7 @@ exports.post = function (req, res){
 };
 exports.page = function (req, res){
 	// var param = JSON.parse(req.body);
-	var page = req.body.page;
+	var page = req.query.page;
 	// console.log("reques: ");
 	// console.dir(param)
 	if (typeof page === "undefined" || !parseInt(page)) {
@@ -40,6 +40,25 @@ exports.page = function (req, res){
 			res.send({success:0});
 		} else {
 			res.send(JSON.stringify(result));
+		}
+	})
+};
+
+exports.getPage = function (req, res){
+	// var param = JSON.parse(req.body);
+	var page = req.query.page;
+	// console.log("reques: ");
+	// console.dir(param)
+	if (typeof page === "undefined" || !parseInt(page)) {
+		res.send("page 错误");
+		return;
+	}
+	diaryService.getPage({page:page,categories:req.body.categories}, function(err, result){
+		console.dir(err);
+		if (err) {
+			res.send({success:0});
+		} else {
+			res.send(result);
 		}
 	})
 };
