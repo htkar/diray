@@ -28,11 +28,11 @@ var AppView = Backbone.View.extend({
 
         this.collection = new ItemList();
         
-        this.listenTo(this.collection, 'add', this.addOne);
-        this.listenTo(this.collection, 'reset', this.addAll);
-        this.listenTo(this.collection, 'all', this.render);
-        this.collection.model = ItemModel;
+        // this.listenTo(this.collection, 'add', this.addOne);
+        // this.listenTo(this.collection, 'reset', this.addAll);
+        // this.listenTo(this.collection, 'all', this.render);
         this.collection.fetch({data: {page: 1}});
+        this.collection.on("add", this.render);
     },
     event: {
         "mousewheel #line": "handleMousewheel",
