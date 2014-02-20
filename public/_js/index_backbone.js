@@ -22,7 +22,9 @@ var ArticleView = Backbone.View.extend({
 
 });
 var YearModel = Backbone.Model.extend({
-    
+    defaults: {
+        "year": null
+    }
 });
 
 var YearView = Backbone.View.extend({
@@ -52,15 +54,17 @@ var AppView = Backbone.View.extend({
         // this.listenTo(this.collection, 'reset', this.addAll);
         // this.listenTo(this.collection, 'all', this.render);
         // this.collection.fetch({data: {page: 1}});
-        this.articles.on("add", this.renderArticles);
-        this.years.on("add", this.renderYears);
+        this.articles.on("sync", this.renderArticles);
+        this.years.on("sync", this.renderYears);
         $.get("_json/diary", {} , function (data){
             that.articles.set(data.articles);
             that.years.set(data.years);
             that.end = data.end;
+            that.articles.trigger('sync', data.articles);
+            that.years.trigger('sync', data.articles);
         }, "json");
     },
-    event: {
+    events: {
         "mousewheel #line": "handleMousewheel",
         "click #new": "handleNewClick",
         "click #line ul": "handleItemClick"
@@ -100,16 +104,16 @@ var AppView = Backbone.View.extend({
     renderYears: function() {
         //console.log("handleInitJson start");
         var collection = this.models;
-        var li = "";
-        var yearsLi = "";
+        // var li = "";
+        // var yearsLi = "";
         
         $.each(collection, function(i, item) {
-            var view = new ArticleView({model: item});
-            var position = YearView[item] = 300*i;
-            yearsLi += yearsListTemp.subtitle({left: position, year: item});
+            var view = new YearView({model: item});
+            var position = yearPositions[item] = 300*i;
+            item.set("left",position);
+            $("#overView ul").append(view.render().el);
+            // yearsLi += yearsListTemp.subtitle({left: position, year: item});
         });
-
-        $("#overView ul").append(yearsLi);
         
         decideEnd();
     },

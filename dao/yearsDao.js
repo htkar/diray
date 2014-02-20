@@ -13,7 +13,7 @@ exports.get = function (callback) {
                 db.close();
                 var result = [];
                 results.forEach(function(item,i) {
-                	result.push(item.year);
+                	result.push({year:item.year});
                 });
                 callback(err, result);
             });
