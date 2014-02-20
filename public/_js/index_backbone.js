@@ -1,4 +1,8 @@
-var ItemModel = Backbone.Model.extend({
+var yearPositions = {};
+_.templateSettings = {
+    interpolate: /\{(.+?)\}/g
+};
+var ArticleModel = Backbone.Model.extend({
     defaults: {
         "title": null,
         "article": "他将手中的诺基亚9300放上支让小贩称，小贩说四两，他说\"扯，这手机167克！\"小贩哑口无言",
@@ -7,47 +11,65 @@ var ItemModel = Backbone.Model.extend({
     }
 });
 
-var ItemView = Backbone.View.extend({
-    termplate: _.template($("#listTemp").html()),
+var ArticleView = Backbone.View.extend({
+    template: _.template($("#articleTemp").html()),
+    tagName: "li",
     render: function() {
-        this.$el.html(this.template(this.model.toJSON()));
+        this.setElement(this.template(this.model.attributes));
         return this;
     }
 
 
 });
-var ItemList = Backbone.Collection.extend({
-    url: "_json/getPage",
-    modle: ItemModel,
+var YearModel = Backbone.Model.extend({
+    
 });
 
+var YearView = Backbone.View.extend({
+    template: _.template($("#yearTemp").html()),
+    render: function() {
+        this.setElement(this.template(this.model.toJSON()));
+        return this;
+    }
+
+});
+
+var ArticleList = Backbone.Collection.extend({
+    url: "_json/getPage",
+    modle: ArticleModel,
+});
+var YearList = Backbone.Collection.extend({
+    modle: YearModel,
+});
 var AppView = Backbone.View.extend({
     initialize: function() {
         var that = this;
         // $.get("_json/diary",{},this.handleInitJson,"json");
 
-        this.collection = new ItemList();
-        
+        this.articles = new ArticleList();
+        this.years = new YearList();
         // this.listenTo(this.collection, 'add', this.addOne);
         // this.listenTo(this.collection, 'reset', this.addAll);
         // this.listenTo(this.collection, 'all', this.render);
-        this.collection.fetch({data: {page: 1}});
-        this.collection.on("add", this.render);
+        // this.collection.fetch({data: {page: 1}});
+        this.articles.on("add", this.renderArticles);
+        this.years.on("add", this.renderYears);
+        $.get("_json/diary", {} , function (data){
+            that.articles.set(data.articles);
+            that.years.set(data.years);
+            that.end = data.end;
+        }, "json");
     },
     event: {
         "mousewheel #line": "handleMousewheel",
         "click #new": "handleNewClick",
         "click #line ul": "handleItemClick"
     },
-    render: function() {
+    renderArticles: function() {
         //console.log("handleInitJson start");
-        var collection = this.collection;
-        var data = collection.models;
-        var resultArray = data.articles;
+        var collection = this.models;
         var li = "";
-        years = data.years;
-        end = data.end;
-        $.each(data, function (index, item){
+        $.each(collection, function (index, item){
             lastLeft = (310)*index + 10;
             lastNumber = index + 1;
             var categories = item.categories || [];
@@ -55,62 +77,44 @@ var AppView = Backbone.View.extend({
             $.each(categories, function (i, items) {
                 categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
             });
-            li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
+            item.set("left", lastLeft);
+            item.set("position", lastNumber);
+            item.set("id", lastNumber);
+            item.set("categories", categoriesHtml);
+            var view = new ArticleView({model: item});
+            $("#line ul").append(view.render().el);
+            // li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
         });
-        $.each(years, function(i, item) {
-            var position = yearPositions[item] = 300*i;
-            yearsLi += yearsListTemp.subtitle({left: position, year: item});
-        });
-
-        $("#overView ul").append(yearsLi);
-        if (resultArray.length > 0) {
-            var time = resultArray[0].time.date();
+       
+        if (collection.length > 0) {
+            var time = collection[0].get("time").date();
             computePosition(time);
             //compute maxWidth
-            maxWidth = resultArray.length * 310;
+            maxWidth = collection.length * 310;
             //timeLineScroll();
         }
         
-        $("#line ul").width(maxWidth).append(li);
+        $("#line ul").width(maxWidth);
         decideEnd();
     },
-    handleInitJson: function (data) {
+    renderYears: function() {
         //console.log("handleInitJson start");
-        var resultArray = data.articles;
+        var collection = this.models;
         var li = "";
-        years = data.years;
-        end = data.end;
-        var model = new ItemModel();
-        model.parse(resultArray);
-        $.each(resultArray, function (index, item){
-            var model = new ItemModel();
-            model.parse(item);
-            lastLeft = (310)*index + 10;
-            lastNumber = index + 1;
-            var categories = item.categories || [];
-            var categoriesHtml = "";
-            $.each(categories, function (i, items) {
-                categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
-            });
-            li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
-        });
-        $.each(years, function(i, item) {
-            var position = yearPositions[item] = 300*i;
+        var yearsLi = "";
+        
+        $.each(collection, function(i, item) {
+            var view = new ArticleView({model: item});
+            var position = YearView[item] = 300*i;
             yearsLi += yearsListTemp.subtitle({left: position, year: item});
         });
 
         $("#overView ul").append(yearsLi);
-        if (resultArray.length > 0) {
-            var time = resultArray[0].time.date();
-            computePosition(time);
-            //compute maxWidth
-            maxWidth = resultArray.length * 310;
-            //timeLineScroll();
-        }
         
-        $("#line ul").width(maxWidth).append(li);
         decideEnd();
     },
+    
+    
     handleMousewheel: function(e,delta) {
 
         e.stopPropagation();
@@ -152,5 +156,35 @@ var AppView = Backbone.View.extend({
         }
     }
 });
-
-new AppView;
+function decideEnd(){
+    if (appView.end) {
+        var li = '<li class="item new">' + 
+        '<div class="position"><a>&nbsp;</a></div>' +
+        '<div class="bg">' +
+            '<section id="article{id}">你没有更多内容可看了。</section></div></li>';
+        
+        maxWidth += 310;
+        $("#line ul").width(maxWidth).append(li);
+    }
+}
+//locate currentPosition
+function computePosition(time) {
+    if (!time instanceof Date) {
+        return;
+    }
+    var currentPositionLeft = 0,
+    thisYear = time.getFullYear(),
+    month = time.getMonth() + 1;
+    currentPositionLeft = yearPositions[thisYear];
+    currentPositionLeft += (1 - (time.getMonth() + 1) / 12) * 300;
+//    console.log("currentPositionLeft: {currentPositionLeft}, month: {month}, time: {time}"
+//    .subtitle({currentPositionLeft:currentPositionLeft,month: time.getMonth() + 1, time: time.str()}));
+    if (currentPositionLeft + $("#currentPosition").width() > $("#overViewLine").width()) {
+        currentPositionLeft = $("#overViewLine").width() - $("#currentPosition").width();
+    }
+    $("#currentPosition").text(month);
+    $("#overView .on").removeClass("on");
+    $("#year" + thisYear).addClass("on");
+    $("#currentPosition").css({left: currentPositionLeft + 'px'});
+}
+var appView = new AppView;

@@ -34,7 +34,7 @@
     <hr class="line" width=100% />
     <span>by<a class="author" href="http://www.weibo.com/wcrd">恋着歌</a></span>
 </footer>
-<script id="listTemp" type="text/x-template">
+<script id="articleTemp" type="text/x-template">
 <li class="item" style="left: {left}px;">
     <div class="position"><a href="">{position}</a></div>
     <div class="bg">
@@ -46,13 +46,23 @@
     </div>
 </li>
 </script>
-        <script src="_js/html5shiv.js"></script>
-        <script src="_js/jquery-1.7.2.js"></script>
-        <script src="_js/underscore.js"></script>
-        <script src="_js/backbone.js"></script>
-        <!--<script src="http://localhost:81/jsLibrary/json2.js"></script>-->
-        <script src="_js/jquery.mousewheel.js"></script>
-        <script src="_js/utils.js"></script>
-        <script src="_js/index_backbone.js"></script>
+<script id="yearTemp" type="text/x-template">
+<li class="item" style="left: {left}px;">
+    <div id="year{year}" class="position">
+        <div class="flicker"></div>
+        <a href="">{year}</a>
+    </div>
+</li>
+
+</script>
+
+<script src="_js/html5shiv.js"></script>
+<script src="_js/jquery-1.7.2.js"></script>
+<script src="_js/underscore.js"></script>
+<script src="_js/backbone.js"></script>
+<!--<script src="http://localhost:81/jsLibrary/json2.js"></script>-->
+<script src="_js/jquery.mousewheel.js"></script>
+<script src="_js/utils.js"></script>
+<script src="_js/index_backbone.js"></script>
     </body>
 </html>
