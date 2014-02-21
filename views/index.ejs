@@ -34,26 +34,44 @@
     <hr class="line" width=100% />
     <span>by<a class="author" href="http://www.weibo.com/wcrd">恋着歌</a></span>
 </footer>
-<script id="articleTemp" type="text/x-template">
-<li class="item" style="left: {left}px;">
-    <div class="position"><a href="">{position}</a></div>
-    <div class="bg">
-        <section id="article{id}">
-            <article>{article}</article>
-            <figcaption class="categories">{categories}</figcaption>
-            <time datetime="{time}">{time}</time>
-        </section>
-    </div>
-</li>
-</script>
-<script id="yearTemp" type="text/x-template">
-<li class="item" style="left: {left}px;">
-    <div id="year{year}" class="position">
-        <div class="flicker"></div>
-        <a href="">{year}</a>
-    </div>
-</li>
 
+<script id="articleTemp" type="text/x-template">
+    <li class="item" style="left: {left}px;">
+        <div class="position"><a href="">{position}</a></div>
+        <div class="bg">
+            <section id="article{id}">
+                <article>{article}</article>
+                <figcaption class="categories">{categories}</figcaption>
+                <time datetime="{time}">{time}</time>
+            </section>
+        </div>
+    </li>
+</script>
+
+<script id="yearTemp" type="text/x-template">
+    <li class="item" style="left: {left}px;">
+        <div id="year{year}" class="position">
+            <div class="flicker"></div>
+            <a href="">{year}</a>
+        </div>
+    </li>
+</script>
+
+<script id="newTemp" type="text/x-template">
+    <li class="item input" style="left: {left}px;">
+        <div class="position"><a href="">{position}</a></div>
+        <div class="bg">
+            <div class="wrap">
+                <form action="/post" method="post">
+                    <section id="article{id}">
+                        <textarea name="article" id="article" class="input_article" range="0&0" placeholder="article" required ></textarea><br />
+                        <figcaption class="categories"><input type="text" name="category" id="category" class="input_category" placeholder="类型" /><a class="add">+</a></figcaption>
+                        <input type="submit" id="btn_submit" class="btn_submit" value="POST" />
+                    </section>
+                </form>
+            </div>
+        </div>
+    </li>
 </script>
 
 <script src="_js/html5shiv.js"></script>

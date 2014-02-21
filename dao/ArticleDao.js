@@ -33,6 +33,7 @@ Diary.get = function (param, callback) {
             pageSize = 25;
             var categories = [];
             var query = {};
+            console.log("param:"+JSON.stringify(param));
             if (typeof param.page !== "undefined") {
             	skip = (param.page - 1) * pageSize;
             }

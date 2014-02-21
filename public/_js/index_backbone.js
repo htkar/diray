@@ -7,7 +7,8 @@ var ArticleModel = Backbone.Model.extend({
         "title": null,
         "article": "他将手中的诺基亚9300放上支让小贩称，小贩说四两，他说\"扯，这手机167克！\"小贩哑口无言",
         "rel": "《一个数码频道主编是如何炼成的》",
-        "time": "2011/01/29 00:00:00"
+        "time": "2011/01/29 00:00:00",
+        "categories": null
     }
 });
 
@@ -44,6 +45,18 @@ var YearList = Backbone.Collection.extend({
     modle: YearModel,
 });
 var AppView = Backbone.View.extend({
+    el: "body",
+    lastLeft: 0,
+    lastNumber: 0,
+    marginLeft_old :0,
+    maxWidth: 0,
+    end: false,
+    currentPage: 1,
+    $overViewLine: $("#overViewLine"),
+    $line_ul: $("#line ul"),
+    $overView_ul: $("#overView ul"),
+    $line: $("#line"),
+    newTemp: _.template($("#newTemp").html()),
     initialize: function() {
         var that = this;
         // $.get("_json/diary",{},this.handleInitJson,"json");
@@ -54,8 +67,8 @@ var AppView = Backbone.View.extend({
         // this.listenTo(this.collection, 'reset', this.addAll);
         // this.listenTo(this.collection, 'all', this.render);
         // this.collection.fetch({data: {page: 1}});
-        this.articles.on("sync", this.renderArticles);
-        this.years.on("sync", this.renderYears);
+        this.articles.on("sync", this.renderArticles, this);
+        this.years.on("sync", this.renderYears, this);
         $.get("_json/diary", {} , function (data){
             that.articles.set(data.articles);
             that.years.set(data.years);
@@ -70,40 +83,43 @@ var AppView = Backbone.View.extend({
         "click #line ul": "handleItemClick"
     },
     renderArticles: function() {
+        var that = this;
         //console.log("handleInitJson start");
-        var collection = this.models;
+        var collection = this.articles.models;
         var li = "";
+        $("#line ul li.new").remove();
         $.each(collection, function (index, item){
-            lastLeft = (310)*index + 10;
-            lastNumber = index + 1;
+            var lastLeft = that.lastLeft = (310)*that.lastNumber + 10;
+            that.lastNumber++
             var categories = item.categories || [];
             var categoriesHtml = "";
             $.each(categories, function (i, items) {
                 categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
             });
             item.set("left", lastLeft);
-            item.set("position", lastNumber);
-            item.set("id", lastNumber);
+            item.set("position", that.lastNumber);
+            item.set("id", that.lastNumber);
             item.set("categories", categoriesHtml);
             var view = new ArticleView({model: item});
-            $("#line ul").append(view.render().el);
+            that.$line_ul.append(view.render().el);
             // li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
         });
        
         if (collection.length > 0) {
             var time = collection[0].get("time").date();
-            computePosition(time);
+            this.computePosition(time);
             //compute maxWidth
-            maxWidth = collection.length * 310;
+            this.maxWidth = that.lastNumber * 310;
             //timeLineScroll();
         }
         
-        $("#line ul").width(maxWidth);
-        decideEnd();
+        this.$line_ul.width(this.maxWidth);
+        this.decideEnd();
     },
     renderYears: function() {
+        var that = this;
         //console.log("handleInitJson start");
-        var collection = this.models;
+        var collection = this.years.models;
         // var li = "";
         // var yearsLi = "";
         
@@ -111,11 +127,11 @@ var AppView = Backbone.View.extend({
             var view = new YearView({model: item});
             var position = yearPositions[item] = 300*i;
             item.set("left",position);
-            $("#overView ul").append(view.render().el);
+            that.$overView_ul.append(view.render().el);
             // yearsLi += yearsListTemp.subtitle({left: position, year: item});
         });
         
-        decideEnd();
+        this.decideEnd();
     },
     
     
@@ -125,26 +141,28 @@ var AppView = Backbone.View.extend({
         e.preventDefault();
         
         var speed=300;
-        var marginLeft = marginLeft_old + delta*speed;
+        var marginLeft = this.marginLeft_old + delta*speed;
         
-        timeLineScroll(marginLeft);
+        this.timeLineScroll(marginLeft);
     },
+
     handleNewClick: function(event){
-        
+        var that = this;
         event.preventDefault();
-        timeLineScroll(0);
+        var lastLeft = this.lastLeft;
+        this.timeLineScroll(0);
         if ($("#line ul li.input").length > 0) {
             return;
         }
-        lastNumber++;
-        maxWidth += 310;
-        $("#line ul").width(maxWidth)
-        var $_li = $(newTemp.subtitle({id: lastNumber, left: lastLeft + 310, position:lastNumber})).prependTo($("#line ul"));
-        newPostAnimation($_li);
-        lastLeft += 310;
+        this.lastNumber++;
+        this.maxWidth += 310;
+        this.$line_ul.width(this.maxWidth)
+        var $_li = $(this.newTemp({id: this.lastNumber, left: lastLeft + 310, position:this.lastNumber})).prependTo(this.$line_ul);
+        this.newPostAnimation($_li);
+        this.lastLeft += 310;
         $("form", $_li).submit(function (event){
             event.preventDefault();
-            post(event);
+            that.post(event);
         });
     },
     handleItemClick: function(event){
@@ -158,37 +176,150 @@ var AppView = Backbone.View.extend({
                 query({categories:category,page:1});
             }
         }
-    }
-});
-function decideEnd(){
-    if (appView.end) {
+    },
+    newPostAnimation: function($_list, width) {
+        $_list.width(0);
+        setTimeout(function () {
+            $_list.width(width||300);
+        },10);
+    },
+    post: function(event) {
+        event.preventDefault();
+        var form = document.forms[0];
+        form.checkValidity();
+        var url = form.action;
+        //var title = form.title.value;
+        var article = form.article.value;
+    //    var rel = form.rel.value;
+        //var time = form.time.value;
+        var categories = form.category;
+        var param = {};
+        param.categories = [];
+        if (categories.length) {
+            for (var i = 0, len = categories.length; i < len; i++) {
+                param.categories.push(categories[i].value || "");
+            }
+        } else {
+            param.categories.push(categories.value || "");
+        }
+        ///param.title = title || "";
+        param.article = article || "";
+    //    param.rel = rel || "";
+        //param.time = time || "";
+        console.log(url);
+        // var formData = new FormData(document.forms[o]);
+        console.dir(param);
+        $.post(url, param, function(data) {
+            if (data.success) {
+                //alert("success");
+                var result = data.result;
+                console.dir(result);
+                var categories = result.categories || [];
+                var categoriesHtml = "";
+                $.each(categories, function (i, items) {
+                    categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
+                });
+                var wrapListTemp = 
+                        '<section id="article{id}">' +
+                             '<article>{article}</article>' +
+                             '<figcaption class="categories">{categories}</figcaption>' +
+                             '<time datetime="{time}">{time}</time></section>';
+                //$("#line ul li.input").css({"position": "absolute", "z-index": "-1"});
+                $("#line ul li.input form").css({"position": "absolute", "z-index": "-1"});
+                $("#line ul li.input .wrap").append(wrapListTemp.subtitle({id:lastNumber,article:result.article,rel:result.rel,time:result.time,categories:categoriesHtml}));
+                //$_list.prependTo($("#line ul"));
+                newPostAnimation($("#line ul li.input section:eq(1)"), 286);
+                $("#line ul li.input").removeClass("input");
+            } else {
+                alert("false");
+            }
+        }, "json");
+        return false;
+    },
+    timeLineScroll: function(marginLeft){
+        if (this.maxWidth < this.$overViewLine.width()) {
+            return;
+        }
+        if (typeof marginLeft === "undefined") {
+            marginLeft = -this.maxWidth;
+        }
+        if (marginLeft>=0) {   //stop when left
+            marginLeft = 0 ;
+        } else if (Math.abs(marginLeft) + this.$overViewLine.width() > this.maxWidth) {//stop when right
+            marginLeft = -(this.maxWidth - this.$overViewLine.width())
+            !this.end && this.requestNewPage();
+        }
+    //    console.log("scroll to :{marginLeft}".subtitle({marginLeft:marginLeft}));
+        this.$line.css({"margin-left": marginLeft + "px"});
+
+        //compute currentArticle
+        var currentArticle = 0;
+        if (Math.abs(marginLeft) % 310) {
+            currentArticle = Math.ceil(Math.abs(marginLeft) / 310) + 1;
+        } else {
+            currentArticle = Math.abs(marginLeft) / 310 + 1;
+        }
+        var time = $("#article" + currentArticle + " time").attr("datetime").date();
+        //console.log("#article" + currentArticle + " time" + time.str());
+        this.computePosition(time);
+        this.marginLeft_old = marginLeft;
+    },
+    requestNewPage: function() {
+        var that = this;
+        //one by one
+        if($("#line ul li.new").length  > 0){
+            return;
+        }
+        console.log("load new page...");
         var li = '<li class="item new">' + 
-        '<div class="position"><a>&nbsp;</a></div>' +
-        '<div class="bg">' +
-            '<section id="article{id}">你没有更多内容可看了。</section></div></li>';
-        
-        maxWidth += 310;
-        $("#line ul").width(maxWidth).append(li);
+                '<div class="position"><a>&nbsp;</a></div>' +
+                '<div class="bg">' +
+                    '<section id="article{id}">load ...</section></div></li>';
+        this.maxWidth += 310;
+        this.$line_ul.width(this.maxWidth).append(li);
+        this.timeLineScroll();
+    //    newPostAnimation($("#line ul li.new"));
+        this.currentPage++;
+
+        // this.articles.fetch({data:{page:this.currentPage}});
+        $.get("_json/page", {page:this.currentPage} , function (data){
+            that.articles.set(data.articles);
+            that.end = data.end;
+            that.articles.trigger('sync', data.articles);
+        }, "json");
+    },
+
+    decideEnd: function(){
+        if (this.end) {
+            var li = '<li class="item new">' + 
+            '<div class="position"><a>&nbsp;</a></div>' +
+            '<div class="bg">' +
+                '<section id="article{id}">你没有更多内容可看了。</section></div></li>';
+            
+            this.maxWidth += 310;
+            this.$line_ul.width(this.maxWidth).append(li);
+        }
+    },
+    //locate currentPosition
+    computePosition: function(time) {
+        if (!time instanceof Date) {
+            return;
+        }
+        var currentPositionLeft = 0,
+        thisYear = time.getFullYear(),
+        month = time.getMonth() + 1;
+        currentPositionLeft = yearPositions[thisYear];
+        currentPositionLeft += (1 - (time.getMonth() + 1) / 12) * 300;
+    //    console.log("currentPositionLeft: {currentPositionLeft}, month: {month}, time: {time}"
+    //    .subtitle({currentPositionLeft:currentPositionLeft,month: time.getMonth() + 1, time: time.str()}));
+        if (currentPositionLeft + $("#currentPosition").width() > this.$overViewLine.width()) {
+            currentPositionLeft = this.$overViewLine.width() - $("#currentPosition").width();
+        }
+        $("#currentPosition").text(month);
+        $("#overView .on").removeClass("on");
+        $("#year" + thisYear).addClass("on");
+        $("#currentPosition").css({left: currentPositionLeft + 'px'});
     }
-}
-//locate currentPosition
-function computePosition(time) {
-    if (!time instanceof Date) {
-        return;
-    }
-    var currentPositionLeft = 0,
-    thisYear = time.getFullYear(),
-    month = time.getMonth() + 1;
-    currentPositionLeft = yearPositions[thisYear];
-    currentPositionLeft += (1 - (time.getMonth() + 1) / 12) * 300;
-//    console.log("currentPositionLeft: {currentPositionLeft}, month: {month}, time: {time}"
-//    .subtitle({currentPositionLeft:currentPositionLeft,month: time.getMonth() + 1, time: time.str()}));
-    if (currentPositionLeft + $("#currentPosition").width() > $("#overViewLine").width()) {
-        currentPositionLeft = $("#overViewLine").width() - $("#currentPosition").width();
-    }
-    $("#currentPosition").text(month);
-    $("#overView .on").removeClass("on");
-    $("#year" + thisYear).addClass("on");
-    $("#currentPosition").css({left: currentPositionLeft + 'px'});
-}
-var appView = new AppView;
+    });
+
+var appView = new AppView();
