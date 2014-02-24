@@ -34,7 +34,7 @@ exports.page = function (req, res){
 		res.send("page 错误");
 		return;
 	}
-	diaryService.get({page:page,categories:req.body.categories}, function(err, result){
+	diaryService.get({page:page,categories:req.query.categories}, function(err, result){
 		console.dir(err);
 		if (err) {
 			res.send({success:0});

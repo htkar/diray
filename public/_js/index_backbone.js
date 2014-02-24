@@ -8,7 +8,8 @@ var ArticleModel = Backbone.Model.extend({
         "article": "他将手中的诺基亚9300放上支让小贩称，小贩说四两，他说\"扯，这手机167克！\"小贩哑口无言",
         "rel": "《一个数码频道主编是如何炼成的》",
         "time": "2011/01/29 00:00:00",
-        "categories": null
+        "categories": [],
+        "left": 0
     }
 });
 
@@ -16,6 +17,7 @@ var ArticleView = Backbone.View.extend({
     template: _.template($("#articleTemp").html()),
     tagName: "li",
     render: function() {
+
         this.setElement(this.template(this.model.attributes));
         return this;
     }
@@ -91,7 +93,7 @@ var AppView = Backbone.View.extend({
         $.each(collection, function (index, item){
             var lastLeft = that.lastLeft = (310)*that.lastNumber + 10;
             that.lastNumber++
-            var categories = item.categories || [];
+            var categories = item.attributes.categories || [];
             var categoriesHtml = "";
             $.each(categories, function (i, items) {
                 categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
@@ -166,6 +168,7 @@ var AppView = Backbone.View.extend({
         });
     },
     handleItemClick: function(event){
+        var that = this;
         var tarEl = event.target;
         if (tarEl.nodeName === "A" && tarEl.parentNode.className === "categories") {
             if (tarEl.className === "add") {
@@ -173,7 +176,7 @@ var AppView = Backbone.View.extend({
             } else {
                 var category = [];
                 category.push(tarEl.text);
-                query({categories:category,page:1});
+                that.query({categories:category,page:1});
             }
         }
     },
@@ -185,6 +188,7 @@ var AppView = Backbone.View.extend({
     },
     post: function(event) {
         event.preventDefault();
+        var that = this;
         var form = document.forms[0];
         form.checkValidity();
         var url = form.action;
@@ -209,32 +213,78 @@ var AppView = Backbone.View.extend({
         console.log(url);
         // var formData = new FormData(document.forms[o]);
         console.dir(param);
+        var model = new ArticleModel(param);
         $.post(url, param, function(data) {
             if (data.success) {
                 //alert("success");
                 var result = data.result;
                 console.dir(result);
+                var model = new ArticleModel(result);
+
                 var categories = result.categories || [];
                 var categoriesHtml = "";
                 $.each(categories, function (i, items) {
                     categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
                 });
-                var wrapListTemp = 
-                        '<section id="article{id}">' +
-                             '<article>{article}</article>' +
-                             '<figcaption class="categories">{categories}</figcaption>' +
-                             '<time datetime="{time}">{time}</time></section>';
-                //$("#line ul li.input").css({"position": "absolute", "z-index": "-1"});
+
+                model.set("categories", categoriesHtml);
                 $("#line ul li.input form").css({"position": "absolute", "z-index": "-1"});
-                $("#line ul li.input .wrap").append(wrapListTemp.subtitle({id:lastNumber,article:result.article,rel:result.rel,time:result.time,categories:categoriesHtml}));
-                //$_list.prependTo($("#line ul"));
-                newPostAnimation($("#line ul li.input section:eq(1)"), 286);
+                
+                model.set("position", that.lastNumber);
+                model.set("id", that.lastNumber);
+                var view = new ArticleView({model: model});
+                $("#line ul li.input .wrap").append(view.render().$el.find("section"));
+                
+                that.newPostAnimation($("#line ul li.input section:eq(1)"), 286);
                 $("#line ul li.input").removeClass("input");
             } else {
                 alert("false");
             }
         }, "json");
         return false;
+    },
+    query: function(param) {
+        var that = this;
+        this.timeLineScroll(0);
+        $.get("_json/page", param , function (data){
+            that.lastNumber = 0;
+            that.lastLeft = 10;
+            that.maxWidth = 0;
+            that.$line_ul.empty();
+            that.articles.set(data.articles);
+            that.end = data.end;
+            that.articles.trigger('sync', data.articles);
+        }, "json");
+        // $.post("_json/page",param,function (data) {
+        //     var resultArray = data.articles;
+        //     var li = "";
+        //     end = data.end;
+        //     $("#line ul").empty();
+        //     lastNumber = 0;
+        //     lastLeft = 10;
+        //     maxWidth = 0;
+        //     $.each(resultArray, function (index, item){
+        //         lastLeft += 310;
+        //         lastNumber = lastNumber + 1;
+        //         //console.log("lastNumber: " + lastNumber + ", lastLeft: " + lastLeft);
+        //         var categories = item.categories || [];
+        //         var categoriesHtml = "";
+        //         $.each(categories, function (i, items) {
+        //             categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
+        //         });
+        //         li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
+        //     });
+
+        //     if (resultArray.length > 0) {
+        //          var time = resultArray[0].time.date();
+        //          computePosition(time);
+        //         //compute maxWidth
+        //         maxWidth += resultArray.length * 310;
+        //         //timeLineScroll();
+        //     }
+        //     $("#line ul").width(maxWidth).append(li);
+        //     decideEnd();
+        // },"json")
     },
     timeLineScroll: function(marginLeft){
         if (this.maxWidth < this.$overViewLine.width()) {
