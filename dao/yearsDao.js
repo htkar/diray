@@ -1,6 +1,7 @@
 var mongodb = require("../models/db");
+var settings = require("../Settings");
 exports.get = function (callback) {
-    mongodb.open(function(err, db) {
+    mongodb.getConnection(function(err, db){
         if (err) {
             return callback(err);
         }
@@ -13,7 +14,7 @@ exports.get = function (callback) {
                 db.close();
                 var result = [];
                 results.forEach(function(item,i) {
-                	result.push({year:item.year});
+                    result.push({year:item.year});
                 });
                 callback(err, result);
             });

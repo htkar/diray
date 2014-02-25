@@ -1,4 +1,3 @@
-var yearPositions = {};
 _.templateSettings = {
     interpolate: /\{(.+?)\}/g
 };
@@ -54,11 +53,13 @@ var AppView = Backbone.View.extend({
     maxWidth: 0,
     end: false,
     currentPage: 1,
+    yearPositions: {},
     $overViewLine: $("#overViewLine"),
     $line_ul: $("#line ul"),
     $overView_ul: $("#overView ul"),
     $line: $("#line"),
     newTemp: _.template($("#newTemp").html()),
+    endTemp: _.template($("#endTemp").html()),
     initialize: function() {
         var that = this;
         // $.get("_json/diary",{},this.handleInitJson,"json");
@@ -127,7 +128,7 @@ var AppView = Backbone.View.extend({
         
         $.each(collection, function(i, item) {
             var view = new YearView({model: item});
-            var position = yearPositions[item] = 300*i;
+            var position = that.yearPositions[item.get("year")] = 300*i;
             item.set("left",position);
             that.$overView_ul.append(view.render().el);
             // yearsLi += yearsListTemp.subtitle({left: position, year: item});
@@ -255,36 +256,6 @@ var AppView = Backbone.View.extend({
             that.end = data.end;
             that.articles.trigger('sync', data.articles);
         }, "json");
-        // $.post("_json/page",param,function (data) {
-        //     var resultArray = data.articles;
-        //     var li = "";
-        //     end = data.end;
-        //     $("#line ul").empty();
-        //     lastNumber = 0;
-        //     lastLeft = 10;
-        //     maxWidth = 0;
-        //     $.each(resultArray, function (index, item){
-        //         lastLeft += 310;
-        //         lastNumber = lastNumber + 1;
-        //         //console.log("lastNumber: " + lastNumber + ", lastLeft: " + lastLeft);
-        //         var categories = item.categories || [];
-        //         var categoriesHtml = "";
-        //         $.each(categories, function (i, items) {
-        //             categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
-        //         });
-        //         li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
-        //     });
-
-        //     if (resultArray.length > 0) {
-        //          var time = resultArray[0].time.date();
-        //          computePosition(time);
-        //         //compute maxWidth
-        //         maxWidth += resultArray.length * 310;
-        //         //timeLineScroll();
-        //     }
-        //     $("#line ul").width(maxWidth).append(li);
-        //     decideEnd();
-        // },"json")
     },
     timeLineScroll: function(marginLeft){
         if (this.maxWidth < this.$overViewLine.width()) {
@@ -321,12 +292,8 @@ var AppView = Backbone.View.extend({
             return;
         }
         console.log("load new page...");
-        var li = '<li class="item new">' + 
-                '<div class="position"><a>&nbsp;</a></div>' +
-                '<div class="bg">' +
-                    '<section id="article{id}">load ...</section></div></li>';
         this.maxWidth += 310;
-        this.$line_ul.width(this.maxWidth).append(li);
+        this.$line_ul.width(this.maxWidth).append(this.endTemp({id: this.lastNumber + 1, article: "loading..."}));
         this.timeLineScroll();
     //    newPostAnimation($("#line ul li.new"));
         this.currentPage++;
@@ -341,13 +308,9 @@ var AppView = Backbone.View.extend({
 
     decideEnd: function(){
         if (this.end) {
-            var li = '<li class="item new">' + 
-            '<div class="position"><a>&nbsp;</a></div>' +
-            '<div class="bg">' +
-                '<section id="article{id}">你没有更多内容可看了。</section></div></li>';
             
             this.maxWidth += 310;
-            this.$line_ul.width(this.maxWidth).append(li);
+            this.$line_ul.width(this.maxWidth).append(this.endTemp({id: this.lastNumber + 1, article: "你没有更多内容可看了。"}));
         }
     },
     //locate currentPosition
@@ -358,7 +321,7 @@ var AppView = Backbone.View.extend({
         var currentPositionLeft = 0,
         thisYear = time.getFullYear(),
         month = time.getMonth() + 1;
-        currentPositionLeft = yearPositions[thisYear];
+        currentPositionLeft = this.yearPositions[thisYear];
         currentPositionLeft += (1 - (time.getMonth() + 1) / 12) * 300;
     //    console.log("currentPositionLeft: {currentPositionLeft}, month: {month}, time: {time}"
     //    .subtitle({currentPositionLeft:currentPositionLeft,month: time.getMonth() + 1, time: time.str()}));
