@@ -3,6 +3,7 @@
  * Module dependencies.
  */
 require("./utils/prototype");
+var mongodb = require("./models/db");
 
 var express = require("express")
   , routes = require("./routes")
@@ -46,7 +47,8 @@ app.get("/_json/:apiName", function (req,res) {
 });
 app.post("/post", _json.post);
 app.post("/page", _json.page);
-
-http.createServer(app).listen(app.get("port"), function(){
-  console.log("Express server listening on port " + app.get("port"));
-});
+mongodb.init(function () {
+  http.createServer(app).listen(app.get("port"), function(){
+    console.log("Express server listening on port " + app.get("port"));
+  });
+})

@@ -10,9 +10,12 @@ exports.get = function (callback) {
                 mongodb.close();
                 return callback(err);
             }
-            collection.find().sort({year:-1}).toArray(function(err, results) {
-                db.close();
+            // collection.find({}).toArray(function(err, result) {
+            //     console.log("years:" + result);
+            // });
+            collection.find({}).sort({year:-1}).toArray(function(err, results) {
                 var result = [];
+                console.dir(results);
                 results.forEach(function(item,i) {
                     result.push({year:item.year});
                 });

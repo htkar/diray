@@ -43,7 +43,6 @@ Diary.get = function (param, callback) {
                 cursor.skip(skip).limit(pageSize).toArray(function(err, results) {
                     // console.dir(results);
                     // Let's close the db
-                    db.close();
                     callback(err, results, end);
                 });
             }
@@ -69,7 +68,6 @@ Diary.save = function (data, callback) {
             //     }
             // });
             collection.save(data, function (err, result) {
-                db.close();
 //                console.log(result);
                 callback(err, result);
             });

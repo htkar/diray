@@ -2,8 +2,12 @@ var diaryService = require("../service/DiaryService");
 
 exports.diary = function(req, res){
 	diaryService.get({}, function (err, result) {
-		// console.dir(data);
-    	res.send(JSON.stringify(result));
+		if (err) {
+			res.send({success:0});
+			console.dir(result);
+		} else {
+	    	res.send(JSON.stringify(result));
+		}
 	});
 };
 
