@@ -4,7 +4,7 @@ exports.diary = function(req, res){
 	diaryService.get({}, function (err, result) {
 		if (err) {
 			res.send({success:0});
-			console.dir(result);
+			console.dir("occurs error: " + err + "\r\n" + "result: " + result);
 		} else {
 	    	res.send(JSON.stringify(result));
 		}
@@ -23,11 +23,12 @@ exports.post = function (req, res){
 		//console.dir(err);
 		if (err) {
 			res.send({success:0});
+			console.dir("occurs error: " + err + "\r\n" + "result: " + result);
 		} else {
 			
 			res.send(JSON.stringify({success:1,result:result}));
 		}
-	})
+	});
 };
 exports.page = function (req, res){
 	// var param = JSON.parse(req.body);
@@ -42,10 +43,11 @@ exports.page = function (req, res){
 		console.dir(err);
 		if (err) {
 			res.send({success:0});
+			console.dir("occurs error: " + err + "\r\n" + "result: " + result);
 		} else {
 			res.send(JSON.stringify(result));
 		}
-	})
+	});
 };
 
 exports.getPage = function (req, res){
@@ -61,8 +63,9 @@ exports.getPage = function (req, res){
 		console.dir(err);
 		if (err) {
 			res.send({success:0});
+			console.dir("occurs error: " + err + "\r\n" + "result: " + result);
 		} else {
 			res.send(result);
 		}
-	})
+	});
 };

@@ -15,7 +15,6 @@ exports.get = function (callback) {
             // });
             collection.find({}).sort({year:-1}).toArray(function(err, results) {
                 var result = [];
-                console.dir(results);
                 results.forEach(function(item,i) {
                     result.push({year:item.year});
                 });

@@ -6,6 +6,6 @@ module.exports = {
     port: '27017',
     user: 'MAIN',
     password: 'htkarwcrd',
-    url: 'mongodb://MAIN:htkarwcrd@troup.mongohq.com:10069/diary?w=1&readPreference=secondary'
+    url: 'mongodb://MAIN:htkarwcrd@troup.mongohq.com:10069/diary'
     // url: 'mongodb://localhost:27017/test'
 };

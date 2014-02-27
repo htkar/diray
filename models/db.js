@@ -5,7 +5,7 @@ var Connection = Mongodb.Connection;
 var Server = Mongodb.Server;
 var MongoClient = Mongodb.MongoClient
 
-var mongodb = new Db(settings.db, new Server(settings.host, settings.port, {auto_reconnect: true}));
+// var mongodb = new Db(settings.db, new Server(settings.host, settings.port, {auto_reconnect: true}));
 var reuseDb = null;
 // mongodb.open(function(err, db) {
 // 		if (err) {
