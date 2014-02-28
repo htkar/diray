@@ -60,6 +60,7 @@ var AppView = Backbone.View.extend({
     $line: $("#line"),
     newTemp: _.template($("#newTemp").html()),
     endTemp: _.template($("#endTemp").html()),
+    currentArticle: $(),
     initialize: function() {
         var that = this;
         // $.get("_json/diary",{},this.handleInitJson,"json");
@@ -100,7 +101,7 @@ var AppView = Backbone.View.extend({
                 categoriesHtml += '<a>{category}</a>'.subtitle({category:items});
             });
             item.set("left", lastLeft);
-            item.set("position", that.lastNumber);
+            item.set("position", item.get("time").date().getMonth() + 1);
             item.set("id", that.lastNumber);
             item.set("categories", categoriesHtml);
             var view = new ArticleView({model: item});
@@ -274,13 +275,16 @@ var AppView = Backbone.View.extend({
         this.$line.css({"margin-left": marginLeft + "px"});
 
         //compute currentArticle
-        var currentArticle = 0;
+        var currentArticleNo = 0;
         if (Math.abs(marginLeft) % 310) {
-            currentArticle = Math.ceil(Math.abs(marginLeft) / 310) + 1;
+            currentArticleNo = Math.ceil(Math.abs(marginLeft) / 310) + 1;
         } else {
-            currentArticle = Math.abs(marginLeft) / 310 + 1;
+            currentArticleNo = Math.abs(marginLeft) / 310 + 1;
         }
-        var time = $("#article" + currentArticle + " time").attr("datetime").date();
+        this.currentArticle.addClass("hidden");
+        this.currentArticle = $(".allItem li:eq(" + (currentArticleNo -1) + ") .hidden").removeClass("hidden");
+
+        var time = $("#article" + currentArticleNo + " time").attr("datetime").date();
         //console.log("#article" + currentArticle + " time" + time.str());
         this.computePosition(time);
         this.marginLeft_old = marginLeft;

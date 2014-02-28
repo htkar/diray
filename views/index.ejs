@@ -17,7 +17,7 @@
     <div id="timeLine">
         <div id="line" class="transition">
         
-            <hr class="line" width="100%" /><!-- over 100% width -->
+            <!-- <hr class="line" width="100%" /> --><!-- over 100% width -->
             <ul class="allItem">
                 
             </ul>
@@ -37,7 +37,6 @@
 
 <script id="articleTemp" type="text/x-template">
     <li class="item" style="left: {left}px;">
-        <div class="position"><a href="">{position}</a></div>
         <div class="bg">
             <section id="article{id}">
                 <article>{article}</article>
@@ -45,6 +44,7 @@
                 <time datetime="{time}">{time}</time>
             </section>
         </div>
+        <div class="position hidden"><a href="">{position}</a></div>
     </li>
 </script>
 
@@ -59,7 +59,6 @@
 
 <script id="newTemp" type="text/x-template">
     <li class="item input" style="left: {left}px;">
-        <div class="position"><a href="">{position}</a></div>
         <div class="bg">
             <div class="wrap">
                 <form action="/post" method="post">
@@ -71,6 +70,8 @@
                 </form>
             </div>
         </div>
+
+        <div class="position"><a href="">{position}</a></div>
     </li>
 </script>
 

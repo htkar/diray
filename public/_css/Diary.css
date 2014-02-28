@@ -28,6 +28,9 @@ header{
     height: 1px;
     background: #444;
 }
+.hidden {
+    visibility: hidden;
+}
 a.signin,a.signup{
     text-align: center;
     color: #fff;
