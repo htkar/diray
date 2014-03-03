@@ -108,7 +108,7 @@ var AppView = Backbone.View.extend({
             that.$line_ul.append(view.render().el);
             // li += listTemp.subtitle({id: lastNumber, left:lastLeft,position:lastNumber,article:item.article,rel:item.rel,time:item.time,categories:categoriesHtml});
         });
-       
+        this.computePosition(collection[0].get("time").date());
         if (collection.length > 0) {
             var time = collection[0].get("time").date();
             this.computePosition(time);
