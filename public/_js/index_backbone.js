@@ -79,6 +79,7 @@ var AppView = Backbone.View.extend({
             that.end = data.end;
             that.articles.trigger('sync', data.articles);
             that.years.trigger('sync', data.articles);
+            $("#line").gallery();
         }, "json");
     },
     events: {
@@ -117,7 +118,7 @@ var AppView = Backbone.View.extend({
             //timeLineScroll();
         }
         
-        this.$line_ul.width(this.maxWidth);
+        // this.$line_ul.width(this.maxWidth);
         this.decideEnd();
     },
     renderYears: function() {
@@ -146,15 +147,19 @@ var AppView = Backbone.View.extend({
         
         var speed=300;
         var marginLeft = this.marginLeft_old + delta*speed;
-        
-        this.timeLineScroll(marginLeft);
+        if (delta < 0) {
+            $("#line").data('gallery' )._navigate("next");
+        } else {
+            $("#line").data('gallery' )._navigate("prev");
+        }
+        // this.timeLineScroll(marginLeft);
     },
 
     handleNewClick: function(event){
         var that = this;
         event.preventDefault();
         var lastLeft = this.lastLeft;
-        this.timeLineScroll(0);
+        // this.timeLineScroll(0);
         if ($("#line ul li.input").length > 0) {
             return;
         }
@@ -247,7 +252,7 @@ var AppView = Backbone.View.extend({
     },
     query: function(param) {
         var that = this;
-        this.timeLineScroll(0);
+        // this.timeLineScroll(0);
         $.get("_json/page", param , function (data){
             that.lastNumber = 0;
             that.lastLeft = 10;
@@ -298,7 +303,7 @@ var AppView = Backbone.View.extend({
         console.log("load new page...");
         this.maxWidth += 310;
         this.$line_ul.width(this.maxWidth).append(this.endTemp({id: this.lastNumber + 1, article: "loading..."}));
-        this.timeLineScroll();
+        // this.timeLineScroll();
     //    newPostAnimation($("#line ul li.new"));
         this.currentPage++;
 

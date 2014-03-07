@@ -31,6 +31,13 @@ header{
 .hidden {
     visibility: hidden;
 }
+.dg-transition{
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    -ms-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+}
 a.signin,a.signup{
     text-align: center;
     color: #fff;
@@ -46,9 +53,9 @@ div#content{
 }
 /*********properties time line*******************/
 div#line{
-    height: 340px;
     position: relative;
     overflow: hidden;
+
 }
 div#line hr{
     top: 50px;
@@ -56,15 +63,28 @@ div#line hr{
 }
 div#line ul.allItem{
     list-style: none;
-    position: absolute;
-    top: 40px;
+    position: relative;
+    height: 350px;
+    width: 300px;
+    margin: 40px auto 0;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-perspective: 1000px;
+    -moz-perspective: 1000px;
+    -o-perspective: 1000px;
+    -ms-perspective: 1000px;
+    perspective: 1000px;
 }
 div#line ul.allItem li.item{
     width: 300px;
     /* position: absolute; */
-    float:left;
     margin-left: 10px;
-    transition: width .3s;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 div#line ul.allItem li.item .itemWrapSuc{
 	overflow: hidden;
@@ -158,7 +178,29 @@ div#line ul.allItem li.item div.bg section time{
     color: #444;
     width: 286px;
 }
-
+div#line nav {
+    width: 51px;
+    margin: 0 auto;
+}
+div#line nav .dg-prev {
+    display: inline-block;
+    text-indent: -9000px;
+    cursor: pointer;
+    width: 24px;
+    height: 25px;
+    opacity: 0.8;
+    background: transparent url(/_img/arrows.png) no-repeat top left;
+}
+div#line nav .dg-next {
+    display: inline-block;
+    text-indent: -9000px;
+    cursor: pointer;
+    width: 24px;
+    height: 25px;
+    opacity: 0.8;
+    background: transparent url(/_img/arrows.png) no-repeat top left;
+    background-position: top right;
+}
 form {
     /*width: 300px;*/
     /*border: 1px solid #aaa;
